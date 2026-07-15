@@ -1,0 +1,41 @@
+name: 'Setup GCC from Source'
+description: 'Download, compile and cache GCC from source with configurable version'
+
+inputs:
+  gcc-version:
+    description: 'The GCC version to build (e.g., 16.1.0, 16.2.0)'
+    required: false
+    default: '16.1.0'
+
+runs:
+  using: "composite"
+  steps:
+    # 1. 尝试恢复缓存（使用版本号作为缓存键的一部分，防止不同版本冲突）
+    - name: Cache GCC ${{ inputs.gcc-version }}
+      id: cache-gcc
+      uses: actions/cache@v4
+      with:
+        path: /usr/local/gcc-${{ inputs.gcc-version }}
+        key: ${{ runner.os }}-${{ runner.arch }}-gcc-${{ inputs.gcc-version }}
+
+    # 2. 仅在缓存未命中时执行编译
+    - name: Build GCC ${{ inputs.gcc-version }} from source
+      if: steps.cache-gcc.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        GCC_VERSION="${{ inputs.gcc-version }}"
+        GCC_SRC="gcc-${GCC_VERSION}"
+        wget -q "https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/${GCC_SRC}.tar.xz"
+        tar xf "${GCC_SRC}.tar.xz"
+        cd "${GCC_SRC}"
+        ./contrib/download_prerequisites
+        mkdir build && cd build
+        ../configure --enable-languages=c,c++ --disable-bootstrap --disable-multilib --prefix=/usr/local/gcc-16
+        make -j$(nproc)
+        sudo make install
+        echo "/usr/local/gcc-16/bin" >> "$GITHUB_PATH"
+
+    # 3. 将对应版本的 GCC 添加到环境变量
+    - name: Add GCC ${{ inputs.gcc-version }} to PATH
+      shell: bash
+      run: echo "/usr/local/gcc-${{ inputs.gcc-version }}/bin" >> "$GITHUB_PATH"
