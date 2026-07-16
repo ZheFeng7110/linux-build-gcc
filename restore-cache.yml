@@ -9,7 +9,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # 1. 尝试恢复缓存（使用版本号作为缓存键的一部分，防止不同版本冲突）
     - name: Cache GCC ${{ inputs.gcc-version }}
       id: cache-gcc
       uses: actions/cache@v4
@@ -17,10 +16,13 @@ runs:
         path: /usr/local/gcc-${{ inputs.gcc-version }}
         key: ${{ runner.os }}-${{ runner.arch }}-gcc-${{ inputs.gcc-version }}
 
-    # 2. 仅在缓存未命中时执行编译
-    - name: Build GCC ${{ inputs.gcc-version }} from source
+    - name: Check GCC ${{ inputs.gcc-version }} cache load was succeed
       if: steps.cache-gcc.outputs.cache-hit != 'true'
       shell: bash
       run: |
         echo "Failed to reload gcc cache!"
         exit 1
+
+    - name: Add GCC ${{ inputs.gcc-version }} to PATH
+      shell: bash
+      run: echo "/usr/local/gcc-${{ inputs.gcc-version }}/bin" >> "$GITHUB_PATH"
