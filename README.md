@@ -1,18 +1,21 @@
 # linux-build-gcc
 
-用于 Github Actions 中 Linux 系统从源代码编译并安装 GCC 的工作流。
+English | [简体中文](./README_zh.md)
 
-会自动缓存安装路径，从而避免相同版本重复编译。缓存路径：`$HOME/.local/gcc-<gcc version>`
-其中，`<gcc version>` 为 GCC 的版本号，例如 `16.1.0`，有效的版本号见 https://ftp.gnu.org/gnu/gcc/
-中列出来的版本（仅支持 `10.1.0` 及以后的版本）。
+---
 
-该工作流适用于较新的 gcc。条件允许的情况下，建议优先使用如 apt 之类的包管理器安装 gcc。
+A workflow for compiling and installing GCC from source on Linux in GitHub Actions.
 
-## 使用方法
+It automatically caches the installation path to avoid recompiling the same version. Cache path: `$HOME/.local/gcc-<gcc version>`.
+Where `<gcc version>` is the GCC version number, e.g. `16.1.0`. Valid version numbers are listed at https://ftp.gnu.org/gnu/gcc/ (only versions `10.1.0` and later are supported).
 
-在 Github Actions 的工作流中，使用 `uses` 引入该工作流，并传入所需的 GCC 版本号（可选）。
+This workflow is suitable for newer GCC versions. Whenever possible, it is recommended to install GCC via a package manager such as apt.
 
-例如：
+## Usage
+
+In your GitHub Actions workflow, use `uses` to include this workflow and pass the desired GCC version (optional).
+
+For example:
 
 ```yaml
 jobs:
@@ -23,18 +26,20 @@ jobs:
 
       - uses: ZheFeng7110/linux-build-gcc@v1
         with:
-          gcc-version: '16.1.0'  # （可选）指定所需的 GCC 版本
+          gcc-version: '16.1.0'  # (Optional) Specify the GCC version
 
     # ...
 ```
 
-上述方法存在缺陷：如果后续执行失败了，缓存会被丢弃。因此建议将缓存存储与恢复缓存分别放入两个 job 中，避免缓存被丢弃：
+The above approach has a drawback: if a subsequent step fails, the cache will be discarded. Therefore, it is recommended to separate cache storage and cache restoration into two different jobs to prevent the cache from being dropped:
 
 ```yaml
 jobs:
   cache:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - uses: ZheFeng7110/linux-build-gcc@v1
         with:
           gcc-version: '16.1.0'
@@ -50,8 +55,8 @@ jobs:
           gcc-version: '16.1.0'
 ```
 
-这样，即使 build job 执行失败，cache job 也不会被丢弃。
+This way, even if the build job fails, the cache from the cache job will not be discarded.
 
-## 许可证
+## License
 
 [Unlicense](./UNLICENSE)
