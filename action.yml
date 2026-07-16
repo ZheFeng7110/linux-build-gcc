@@ -12,14 +12,14 @@ runs:
   steps:
     - name: Make cache directory
       shell: bash
-      run: mkdir -p ${{ env.HOME }}/.local/gcc-${{ inputs.gcc-version }}
+      run: mkdir -p ~/.local/gcc-${{ inputs.gcc-version }}
 
     # 1. 尝试恢复缓存（使用版本号作为缓存键的一部分，防止不同版本冲突）
     - name: Cache GCC ${{ inputs.gcc-version }}
       id: cache-gcc
       uses: actions/cache@v4
       with:
-        path: ${{ env.HOME }}/.local/gcc-${{ inputs.gcc-version }}
+        path: ~/.local/gcc-${{ inputs.gcc-version }}
         key: ${{ runner.os }}-${{ runner.arch }}-gcc-${{ inputs.gcc-version }}
 
     # 2. 仅在缓存未命中时安装编译依赖
@@ -40,11 +40,11 @@ runs:
         cd "${GCC_SRC}"
         ./contrib/download_prerequisites
         mkdir build && cd build
-        ../configure --enable-languages=c,c++ --disable-bootstrap --disable-multilib --prefix=${{ env.HOME }}/.local/gcc-${GCC_VERSION}
+        ../configure --enable-languages=c,c++ --disable-bootstrap --disable-multilib --prefix=$HOME/.local/gcc-${GCC_VERSION}
         make -j$(nproc)
         make install
 
     # 4. 将对应版本的 GCC 添加到环境变量
     - name: Add GCC ${{ inputs.gcc-version }} to PATH
       shell: bash
-      run: echo "${{ env.HOME }}/.local/gcc-${{ inputs.gcc-version }}/bin" >> "$GITHUB_PATH"
+      run: echo "~/.local/gcc-${{ inputs.gcc-version }}/bin" >> "$GITHUB_PATH"
