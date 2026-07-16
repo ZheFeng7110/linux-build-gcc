@@ -13,7 +13,7 @@ runs:
       id: cache-gcc
       uses: actions/cache@v4
       with:
-        path: ~/.local/gcc-${{ inputs.gcc-version }}
+        path: $HOME/.local/gcc-${{ inputs.gcc-version }}
         key: ${{ runner.os }}-${{ runner.arch }}-gcc-${{ inputs.gcc-version }}
 
     - name: Check GCC ${{ inputs.gcc-version }} cache load was succeed
@@ -25,4 +25,4 @@ runs:
 
     - name: Add GCC ${{ inputs.gcc-version }} to PATH
       shell: bash
-      run: echo "~/.local/gcc-${{ inputs.gcc-version }}/bin" >> "$GITHUB_PATH"
+      run: echo "$HOME/.local/gcc-${{ inputs.gcc-version }}/bin" >> "$GITHUB_PATH"

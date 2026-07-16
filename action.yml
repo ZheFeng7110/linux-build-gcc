@@ -15,7 +15,7 @@ runs:
       id: cache-gcc
       uses: actions/cache@v4
       with:
-        path: ~/.local/gcc-${{ inputs.gcc-version }}
+        path: $HOME/.local/gcc-${{ inputs.gcc-version }}
         key: ${{ runner.os }}-${{ runner.arch }}-gcc-${{ inputs.gcc-version }}
 
     # 2. 仅在缓存未命中时执行编译
@@ -30,12 +30,12 @@ runs:
         cd "${GCC_SRC}"
         ./contrib/download_prerequisites
         mkdir build && cd build
-        ../configure --enable-languages=c,c++ --disable-bootstrap --disable-multilib --prefix=~/.local/gcc-${GCC_VERSION}
+        ../configure --enable-languages=c,c++ --disable-bootstrap --disable-multilib --prefix=$HOME/.local/gcc-${GCC_VERSION}
         make -j$(nproc)
         sudo make install
-        echo "~/.local/gcc-${GCC_VERSION}/bin" >> "$GITHUB_PATH"
+        echo "$HOME/.local/gcc-${GCC_VERSION}/bin" >> "$GITHUB_PATH"
 
     # 3. 将对应版本的 GCC 添加到环境变量
     - name: Add GCC ${{ inputs.gcc-version }} to PATH
       shell: bash
-      run: echo "~/.local/gcc-${{ inputs.gcc-version }}/bin" >> "$GITHUB_PATH"
+      run: echo "$HOME/.local/gcc-${{ inputs.gcc-version }}/bin" >> "$GITHUB_PATH"
